@@ -17,7 +17,9 @@ private:
     StartDialog *startDlg;
     QLabel      *lblStatus;
     QTreeWidget *tree;
+    QLineEdit   *lineInput;
     int         countDig;
+    bool        firstStartFlag;
 
 signals:
 

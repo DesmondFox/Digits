@@ -2,22 +2,25 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    // Установка флага первой загрузки
+    // Нужно, чтобы не настраивать виджеты дважды
+    firstStartFlag      = true;
+
     // Стартовое окно для начала
     startDlg    = new StartDialog(this);
     connect(startDlg, SIGNAL(signalStart(int)), this, SLOT(slotStartGame(int)));
     startDlg->exec();
 
     QWidget     *wgt        = new QWidget(this);
-
     // Обьявление виджетов
     QLabel      *lblInput   = new QLabel(tr("Ввод:"), wgt);
-    QLineEdit   *lineInput  = new QLineEdit(wgt);
     QPushButton *btnOK      = new QPushButton("&OK", wgt);
     QStatusBar  *sttBar     = new QStatusBar(this);
     QToolBar    *toolBar    = new QToolBar(this);
 
     lblStatus   = new QLabel(tr("Игра началась"), this);
     tree        = new QTreeWidget(wgt);
+    lineInput   = new QLineEdit(wgt);
 
     // Компоновка виджетов
     QHBoxLayout *pHBox      = new QHBoxLayout();
@@ -61,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     sttBar->addWidget(lblStatus);
     btnOK->setDefault(true);
     btnOK->setIcon(QIcon(":/icons/Icons/button_ok.png"));
-
+    lineInput->setFocus();
 
 
 
@@ -69,9 +72,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::slotStartGame(int count)
 {
-    countDig    = count;
 
-    qDebug() << "Note:\tSlot is working [" << count << "]";
+    // Количество цифр
+    countDig    = count;
+    if (!firstStartFlag)
+    {
+        qDebug() << "Note:\tSetting the widgets...";
+        // Очистка виджетов
+        lineInput->clear();
+        tree->clear();
+
+        // Заполнение первоначальными данными
+        lblStatus->setText(tr("Игра началась"));
+        // Изменение валидатора на поле ввода
+        lineInput->setValidator(new QRegExpValidator(QRegExp(QString("[0-9]{1,"+QString::number(countDig)+"}"))));
+        // Указание фокуса при загрузке
+        lineInput->setFocus();
+    }
+
+    // Установка того, что новая игра запускается уже не в первый раз,
+    // чтобы потом перенастроить виджеты
+    if (firstStartFlag)
+        firstStartFlag = false;
 }
 
 void MainWindow::slotNewGame()
@@ -81,6 +103,7 @@ void MainWindow::slotNewGame()
                                     QMessageBox::Yes | QMessageBox::No);
     if (wnd == QMessageBox::Yes)
         startDlg->exec();
+    qDebug() << "Note:\tNew game request";
 }
 
 void MainWindow::slotQuit()
