@@ -19,16 +19,18 @@ private:
     QTreeWidget *tree;
     QLineEdit   *lineInput;
     int         countDig;
+    int         tryNumber;
     bool        firstStartFlag;
-
-signals:
-
-public slots:
+    QVector<QString> withoutMatches;
+    GameClass   game;
 
 private slots:
     void slotStartGame(int count);
     void slotNewGame();     // Слот для кнопки "Новая игра" для запуска в дальнейшем slotStartGame
     void slotQuit();
+    void slotOkPress();
+
+
 };
 
 #endif // MAINWINDOW_H

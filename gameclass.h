@@ -17,11 +17,11 @@ class GameClass : public QObject
 public:
     explicit GameClass(int count = 4, QObject *parent = 0);
     BullsAndCows    checkDigits(const QVector<int> &attempt);
+    void    setDigits(int count = 4);
 
 private:
     QVector<int>    digits;
     int     countDigits;
-    void    setDigits(int count = 4);
 
 signals:
     void win();

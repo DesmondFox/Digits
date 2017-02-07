@@ -2,7 +2,7 @@
 
 GameClass::GameClass(int count, QObject *parent) : QObject(parent)
 {
-    setDigits(count);
+
 }
 
 BullsAndCows GameClass::checkDigits(const QVector<int> &attempt)
@@ -76,7 +76,7 @@ void GameClass::setDigits(int count)
     }
 
 #ifdef _DEBUG
-    qDebug() << "Generated: " << digits;
+    qDebug() << "Note:\tGenerated: " << digits;
 #endif
 }
 

@@ -62,11 +62,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Настройка кнопок и других элементов
     sttBar->addWidget(lblStatus);
+    btnOK->setAutoDefault(true);
     btnOK->setDefault(true);
     btnOK->setIcon(QIcon(":/icons/Icons/button_ok.png"));
     lineInput->setFocus();
 
+    connect(btnOK, SIGNAL(clicked(bool)), SLOT(slotOkPress()));
 
+    tryNumber = 1;
 
 }
 
@@ -75,12 +78,17 @@ void MainWindow::slotStartGame(int count)
 
     // Количество цифр
     countDig    = count;
+
+    // Генерация числа
+    game.setDigits(count);
+
     if (!firstStartFlag)
     {
         qDebug() << "Note:\tSetting the widgets...";
-        // Очистка виджетов
+        // Очистка виджетов и вектора избежания совпадений
         lineInput->clear();
         tree->clear();
+        withoutMatches.clear();
 
         // Заполнение первоначальными данными
         lblStatus->setText(tr("Игра началась"));
@@ -88,6 +96,8 @@ void MainWindow::slotStartGame(int count)
         lineInput->setValidator(new QRegExpValidator(QRegExp(QString("[0-9]{1,"+QString::number(countDig)+"}"))));
         // Указание фокуса при загрузке
         lineInput->setFocus();
+
+        tryNumber = 1;
     }
 
     // Установка того, что новая игра запускается уже не в первый раз,
@@ -114,3 +124,47 @@ void MainWindow::slotQuit()
     if (wnd == QMessageBox::Yes)
         StartDialog::slotExit();
 }
+
+void MainWindow::slotOkPress()
+{
+    if (lineInput->text().length() < countDig)
+        return;
+
+    // Проверка на совпадения с прошлыми попытками
+    bool matchFlag = false;
+    for (int i = 0; i < withoutMatches.length(); i++)
+    {
+        if (withoutMatches.at(i) == lineInput->text())
+        {
+            matchFlag = true;
+            break;
+        }
+    }
+    if (matchFlag)
+    {
+        qDebug() << "Note:\tMatching!";
+        lblStatus->setText(tr("<font color=red>Было уже</font>"));
+    }
+    else
+    {
+
+        QVector<int> tmpVector;
+        for (int i = 0; i < countDig; i++)
+            tmpVector << lineInput->text().at(i).digitValue();
+        qDebug() << "Note:\tAdding:" << tmpVector;
+
+        BullsAndCows tmp = game.checkDigits(tmpVector);
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(tree);
+        item->setText(0, QString::number(tryNumber));
+        item->setText(1, lineInput->text());
+        item->setText(2, QString(QString::number(tmp.bulls)+tr("Б, ")+QString::number(tmp.cows)+tr("К")));
+        tree->addTopLevelItem(item);
+        tryNumber++;
+        withoutMatches << lineInput->text();
+    }
+    lineInput->setText("");
+    lineInput->setFocus();
+
+}
+
