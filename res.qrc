@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>Icons/button_ok.png</file>
+        <file>Icons/button_newGame.png</file>
+    </qresource>
+</RCC>
