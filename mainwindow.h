@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QMessageBox>
 #include "gameclass.h"
 #include "startdialog.h"
 
@@ -25,6 +26,7 @@ public slots:
 private slots:
     void slotStartGame(int count);
     void slotNewGame();     // Слот для кнопки "Новая игра" для запуска в дальнейшем slotStartGame
+    void slotQuit();
 };
 
 #endif // MAINWINDOW_H

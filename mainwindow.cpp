@@ -47,9 +47,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Настройка туллбара
 //    toolBar->setFloatable(false);
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolBar->setMovable(false);
-    QAction *acNewGame  = new QAction(QIcon(":/icons/Icons/button_newGame.png"), tr("Новая игра"), toolBar);
+    QAction *acNewGame  = new QAction(QIcon(":/icons/Icons/button_newGame.png"), tr("Новая игра"));
+    QAction *acQuit     = new QAction(QIcon(":/icons/Icons/button_quit.png"), tr("Выйти"));
+    toolBar->addAction(acNewGame);
+    toolBar->addAction(acQuit);
 
+    connect(acNewGame, SIGNAL(triggered(bool)), SLOT(slotNewGame()));
+    connect(acQuit, SIGNAL(triggered(bool)), SLOT(slotQuit()));
+
+    // Настройка кнопок и других элементов
     sttBar->addWidget(lblStatus);
     btnOK->setDefault(true);
     btnOK->setIcon(QIcon(":/icons/Icons/button_ok.png"));
@@ -68,5 +76,18 @@ void MainWindow::slotStartGame(int count)
 
 void MainWindow::slotNewGame()
 {
+    int wnd = QMessageBox::question(this, tr("Новая игра"),
+                                    tr("Вы действительно хотите начать игру заново?"),
+                                    QMessageBox::Yes | QMessageBox::No);
+    if (wnd == QMessageBox::Yes)
+        startDlg->exec();
+}
 
+void MainWindow::slotQuit()
+{
+    int wnd = QMessageBox::question(this, tr("Выход из игры"),
+                                    tr("Вы действительно хотите завершить игру?"),
+                                    QMessageBox::Yes | QMessageBox::No);
+    if (wnd == QMessageBox::Yes)
+        StartDialog::slotExit();
 }
