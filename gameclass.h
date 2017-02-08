@@ -18,6 +18,7 @@ public:
     explicit GameClass(int count = 4, QObject *parent = 0);
     BullsAndCows    checkDigits(const QVector<int> &attempt);
     void    setDigits(int count = 4);
+    QString getDigits();
 
 private:
     QVector<int>    digits;

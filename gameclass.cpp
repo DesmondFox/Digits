@@ -80,3 +80,11 @@ void GameClass::setDigits(int count)
 #endif
 }
 
+QString GameClass::getDigits()
+{
+    QString dig;
+    for (int i = 0; i < digits.length(); i++)
+        dig += QString::number(digits.at(i));
+    return dig;
+}
+

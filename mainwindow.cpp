@@ -71,6 +71,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     tryNumber = 1;
 
+    connect(&game, SIGNAL(win()), SLOT(slotWin()));
+
+    winFlag = false;
 }
 
 void MainWindow::slotStartGame(int count)
@@ -127,6 +130,7 @@ void MainWindow::slotQuit()
 
 void MainWindow::slotOkPress()
 {
+    // Если количество цифр не подходит - игнорируем
     if (lineInput->text().length() < countDig)
         return;
 
@@ -147,24 +151,49 @@ void MainWindow::slotOkPress()
     }
     else
     {
+            // Переганяем в вектор строку
+            QVector<int> tmpVector;
+            for (int i = 0; i < countDig; i++)
+                tmpVector << lineInput->text().at(i).digitValue();
 
-        QVector<int> tmpVector;
-        for (int i = 0; i < countDig; i++)
-            tmpVector << lineInput->text().at(i).digitValue();
-        qDebug() << "Note:\tAdding:" << tmpVector;
+            qDebug() << "Note:\tAdding:" << tmpVector;
 
-        BullsAndCows tmp = game.checkDigits(tmpVector);
+            // Получаем данные и записываем в таблицу
+            BullsAndCows tmp = game.checkDigits(tmpVector);
+            // Если стоит флаг победы, то мы не будем заново добавлять это же число еще раз в таблицу
+            if (!winFlag)
+            {
+                QTreeWidgetItem *item = new QTreeWidgetItem(tree);
+                item->setText(0, QString::number(tryNumber));
+                item->setText(1, lineInput->text());
+                item->setText(2, QString(QString::number(tmp.bulls)+tr("Б, ")+QString::number(tmp.cows)+tr("К")));
+                tree->addTopLevelItem(item);
+                tryNumber++;
+                withoutMatches << lineInput->text();
+            }
+            else
+                winFlag = false;
 
-        QTreeWidgetItem *item = new QTreeWidgetItem(tree);
-        item->setText(0, QString::number(tryNumber));
-        item->setText(1, lineInput->text());
-        item->setText(2, QString(QString::number(tmp.bulls)+tr("Б, ")+QString::number(tmp.cows)+tr("К")));
-        tree->addTopLevelItem(item);
-        tryNumber++;
-        withoutMatches << lineInput->text();
     }
     lineInput->setText("");
     lineInput->setFocus();
 
+}
+
+void MainWindow::slotWin()
+{
+    // Поставим флаг победы для избежания добавления элемента прошлой игры в таблицу
+    // Да, костыль
+    winFlag = true;
+
+    int wnd = QMessageBox::information(this, tr("Победа"),
+                                       QString(tr("Вы угадали число <font color=green><b>")+
+                                               game.getDigits()+tr("</b></font> с ")+
+                                          QString::number(tryNumber)+tr(" попытки. <br>Хотите начать заново?")),
+                                          QMessageBox::Yes | QMessageBox::Abort);
+    if (wnd == QMessageBox::Yes)
+        slotStartGame(countDig);
+    if (wnd == QMessageBox::Abort)
+        StartDialog::slotExit();
 }
 
